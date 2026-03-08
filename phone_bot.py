@@ -1,6 +1,21 @@
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 from address_book import AddressBook
 from record import Record
+import pickle
+
+
+def save_data(book, filename="addressbook.pkl") -> None:
+    with open(filename, "wb") as fh:
+        pickle.dump(book, fh)
+
+
+def load_data(filename="addressbook.pkl") -> AddressBook:
+    try:
+        with open(filename, "rb") as fh:
+            return pickle.load(fh)
+
+    except FileNotFoundError:
+        return AddressBook()  # Повернення нової адресної книги, якщо файл не знайдено
 
 
 def input_error(func):
@@ -42,7 +57,7 @@ def input_error(func):
 
 
 @input_error
-def add_contact(args, book: AddressBook):
+def add_contact(args, book: AddressBook) -> str:
     name, phone = args
     record = book.find(name)
     message = "Contact updated."
@@ -117,7 +132,7 @@ def parse_input(user_input: str) -> Tuple[str, List[str]]:
 
 def phone_bot() -> None:
     print("Welcome to the assistant bot!")
-    book = AddressBook()
+    book = load_data()
 
     while True:
         user_input: str = input("Enter a command: ").strip()
@@ -129,6 +144,7 @@ def phone_bot() -> None:
         command, args = parse_input(user_input)
 
         if command in ["close", "exit"]:
+            save_data(book)
             print("Good bye!")
             break
 
